@@ -13,6 +13,7 @@ namespace mint {
         }
         
         // nom-copyable and non-movable
+        // okay found out that this means arena can't be in a vector, that's disapppointing, so check other stuff
         arena(const arena&) = delete;
         arena& operator=(const arena&) = delete;    
         arena(arena&&) = delete;
