@@ -7,10 +7,12 @@ namespace mint {
     public:
         // members
         char* buffer = nullptr;
+        size_t capacity;
+        size_t pointer;
 
-        arena(size_t capacity) {
-            buffer = new char[capacity];
-        }
+        arena(size_t capacity) : capacity(capacity), buffer(new char[capacity]) {}
+        arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {}
+
         
         // nom-copyable and non-movable
         // okay found out that this means arena can't be in a vector, that's disapppointing, so check other stuff
@@ -22,6 +24,7 @@ namespace mint {
 
         template <typename T, class... Args>
         T* mint(Args&& ...Args) {
+
             return 0;
         }
 
@@ -29,6 +32,8 @@ namespace mint {
         T* mint_array(size_t amount) {
             return 0;
         }
+
+        //
 
         template <typename T, class... Args>
         T* try_mint(Args&& ...Args) {
@@ -39,6 +44,10 @@ namespace mint {
         T* try_mint_array(size_t amount) {
             return 0;
         }
+
+
+        //
+
 
 
     };
