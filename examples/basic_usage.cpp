@@ -7,8 +7,8 @@ namespace mint {
     public:
         // members
         char* buffer = nullptr;
-        size_t capacity;
-        size_t pointer;
+        size_t capacity = 0;
+        size_t offset = 0;
 
         arena(size_t capacity) : capacity(capacity), buffer(new char[capacity]) {}
         arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {}
@@ -25,7 +25,7 @@ namespace mint {
         template <typename T, class... Args>
         T* mint(Args&& ...Args) {
 
-            return 0;
+            return new (buffer + offset) T;
         }
 
         template <typename T>
