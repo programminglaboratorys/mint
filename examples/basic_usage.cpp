@@ -11,11 +11,11 @@ namespace mint {
         size_t offset = 0;
 
         arena(size_t capacity) : capacity(capacity), buffer(new char[capacity]) {}
-        arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {}
+        arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {} // hey most likely would have to copy this whole buffer to a new one
 
         
         // nom-copyable and non-movable
-        // okay found out that this means arena can't be in a vector, that's disapppointing, so check other stuff
+        // okay found out that this means arena can't be in a vector, that's disapppointing, so check later for how to handle moving
         arena(const arena&) = delete;
         arena& operator=(const arena&) = delete;    
         arena(arena&&) = delete;
