@@ -7,8 +7,8 @@ namespace mint {
     public:
         // members
         char* buffer = nullptr;
-        size_t capacity = 0;
         size_t offset = 0;
+        size_t capacity = 0;
 
         explicit arena(size_t capacity) : capacity(capacity), buffer(new char[capacity]) {}
         arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {} // hey most likely would have to copy this whole buffer to a new one
@@ -30,7 +30,7 @@ namespace mint {
             // bleh check if an object is destructible with std::is_trivially_destructible_v<T>
             // and handle that properly, later, now its just a simple arena
             size_t alignment = alignof(T);
-            size_t size = sizeof(T).
+            size_t size = sizeof(T);
 
             char* current_ptr = buffer + offset;
             std::size_t space = capacity - offset;
@@ -42,13 +42,14 @@ namespace mint {
             }
 
             // bump the offset of the arena
-            offset_ = static_cast<char*>(aligned_ptr) - buffer + size;
+            offset = static_cast<char*>(aligned_ptr) - buffer + size;
 
-            return new (aligned_ptr) T(std::forward<Args>(args)...).;
+            return new (aligned_ptr) T(std::forward<Args>(args)...);
         }
 
         template <typename T>
         T* mint_array(size_t amount) {
+            // TODO: do the thing
             return 0;
         }
 
@@ -74,6 +75,10 @@ namespace mint {
 
 int main() {
     mint::arena arena(64 * 1024);
+    int* num = arena.mint<int>();
+    printf("hihi  %d\n", *num);
+    *num = 10;
+    printf("hihi2 %d", *num);
 
     return 0;
 }
