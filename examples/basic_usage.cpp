@@ -29,6 +29,7 @@ namespace mint {
         T* mint(Args&& ...args) {
             // bleh check if an object is destructible with std::is_trivially_destructible_v<T>
             // and handle that properly, later, now its just a simple arena
+            static_assert(std::is_trivially_destructible_v<T>, "trivially destructible object are not supported!");
             size_t alignment = alignof(T);
             size_t size = sizeof(T);
 
@@ -76,6 +77,7 @@ namespace mint {
 int main() {
     mint::arena arena(64 * 1024);
     int* num = arena.mint<int>();
+    std::string* str = arena.mint<std::string>();
     printf("hihi  %d\n", *num);
     *num = 10;
     printf("hihi2 %d", *num);
