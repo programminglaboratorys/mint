@@ -25,13 +25,18 @@ namespace mint {
         arena& operator=(arena&&) = delete;
 
 
+        void reset() {
+            offset = 0;
+        }
+
+
         template <typename T, class... Args>
         T* mint(Args&& ...args) {
             // bleh check if an object is destructible with std::is_trivially_destructible_v<T>
             // and handle that properly, later, now its just a simple arena
-            static_assert(std::is_trivially_destructible_v<T>, "trivially destructible object are not supported!");
-            size_t alignment = alignof(T);
-            size_t size = sizeof(T);
+            static_assert(std::is_trivially_destructible_v<T>, "non-trivially destructible object are not supported!");
+            constexpr size_t alignment = alignof(T);
+            constexpr size_t size = sizeof(T);
 
             char* current_ptr = buffer + offset;
             std::size_t space = capacity - offset;
@@ -48,11 +53,37 @@ namespace mint {
             return new (aligned_ptr) T(std::forward<Args>(args)...);
         }
 
+
         template <typename T>
         T* mint_array(size_t amount) {
-            // TODO: do the thing
-            return 0;
+            static_assert(std::is_trivially_destructible_v<T>, "non-trivially destructible object are not supported!");
+            constexpr size_t alignment = alignof(T);
+            constexpr size_t size = sizeof(T);
+
+            void* current_ptr = buffer + offset;
+            std::size_t space = capacity - offset;
+
+            const size_t total_size = size * amount;
+
+            // align the ptr to the specified alignment
+            if (std::align(alignment, total_size, current_ptr, space) == nullptr) {
+                throw std::bad_alloc();
+            }
+
+            // bump the offset of the arena
+            offset = static_cast<char*>(current_ptr)-buffer + total_size;
+            return (T*)current_ptr;
         }
+
+        //template <typename T, class... Args>
+        //T* mint_array_ex(size_t amount,  Args&& ...args) {
+        //    // TODO: use mint_array then afterwards create a link list (btw if it is possible to compress it because this is just a contiaus array, it would be amazing)
+        //    T* start = mint<T>(std::forward<Args>(args)...);
+        //    for (size_t counter = 1; counter >= amount; counter++) {
+        //        mint<T>(std::forward<Args>(args)...);
+        //    }
+        //    return 0;
+        //}
 
         //
 
@@ -77,7 +108,10 @@ namespace mint {
 int main() {
     mint::arena arena(64 * 1024);
     int* num = arena.mint<int>();
-    std::string* str = arena.mint<std::string>();
+    int* num_array = arena.mint_array<int>(10);
+    int stack_num_array[10];
+    memcpy(stack_num_array, num_array, 10 * sizeof(int));
+    //std::string* str = arena.mint<std::string>();
     printf("hihi  %d\n", *num);
     *num = 10;
     printf("hihi2 %d", *num);
