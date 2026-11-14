@@ -62,28 +62,50 @@ namespace mint {
 
             void* current_ptr = buffer + offset;
             std::size_t space = capacity - offset;
+            void* aligned_ptr = current_ptr;
 
             const size_t total_size = size * amount;
 
             // align the ptr to the specified alignment
-            if (std::align(alignment, total_size, current_ptr, space) == nullptr) {
+            if (std::align(alignment, total_size, aligned_ptr, space) == nullptr) {
                 throw std::bad_alloc();
             }
 
             // bump the offset of the arena
-            offset = static_cast<char*>(current_ptr)-buffer + total_size;
-            return (T*)current_ptr;
+            offset = static_cast<char*>(aligned_ptr)-buffer + total_size;
+            return static_cast<T*>(aligned_ptr);
         }
 
-        //template <typename T, class... Args>
-        //T* mint_array_ex(size_t amount,  Args&& ...args) {
-        //    // TODO: use mint_array then afterwards create a link list (btw if it is possible to compress it because this is just a contiaus array, it would be amazing)
-        //    T* start = mint<T>(std::forward<Args>(args)...);
-        //    for (size_t counter = 1; counter >= amount; counter++) {
-        //        mint<T>(std::forward<Args>(args)...);
-        //    }
-        //    return 0;
-        //}
+        template <typename T, class... Args>
+        T* mint_array_ex(size_t amount,  Args&& ...args) {
+            // TODO: use mint_array then afterwards create a link list (btw if it is possible to compress it because this is just a contiaus array, it would be amazing)
+            static_assert(std::is_trivially_destructible_v<T>, "non-trivially destructible object are not supported!");
+            constexpr size_t alignment = alignof(T);
+            constexpr size_t size = sizeof(T);
+
+            void* current_ptr = buffer + offset;
+            std::size_t space = capacity - offset;
+            void* aligned_ptr = current_ptr;
+
+            const size_t total_size = size * amount;
+
+            // align the ptr to the specified alignment
+            if (std::align(alignment, total_size, aligned_ptr, space) == nullptr) {
+                throw std::bad_alloc();
+            }
+            T* aligned_object_ptr = static_cast<T*>(aligned_ptr);
+
+            T* end_ptr = aligned_object_ptr + amount;
+            T* cur_ptr = aligned_object_ptr;
+            while (cur_ptr != end_ptr) {
+                new (cur_ptr) T(args...);
+                cur_ptr++;
+            }
+            // bump
+            offset = static_cast<char*>(aligned_ptr) - buffer + total_size;
+
+            return aligned_object_ptr;
+        }
 
         //
 
@@ -109,8 +131,11 @@ int main() {
     mint::arena arena(64 * 1024);
     int* num = arena.mint<int>();
     int* num_array = arena.mint_array<int>(10);
-    int stack_num_array[10];
+    int stack_num_array[10]{};
     memcpy(stack_num_array, num_array, 10 * sizeof(int));
+    int* num_array2 = arena.mint_array_ex<int>(10);
+    memcpy(stack_num_array, num_array2, 10 * sizeof(int));
+
     //std::string* str = arena.mint<std::string>();
     printf("hihi  %d\n", *num);
     *num = 10;
