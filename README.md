@@ -1,12 +1,12 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <img src="./docs/logo.svg" alt="mint logo" width="80" height="80">
+  <img src="./docs/logo.svg" alt="mint logo" width="140" height="140">
 
 <h3 align="center">mint</h3>
 
 <p align="center">
-  <strong>one sentence about what it does..</strong>
+  <strong>A fast, small and readable arena and pool allocator single header C++ library</strong>
 </p>
 
 <p align="center">
@@ -57,7 +57,11 @@ CMakePresets.json     build configurations
 
 ## License
 
-The source code is licensed under the [MIT License](./LICENSE).
+This repository uses two licenses: the source code is open source, and the artwork is not.
+
+* **Source Code:** All software and source code files are licensed under the **[MIT License](./LICENSE)**. You are free to use, modify, and distribute the code commercially or non-commercially.
+* **Icons & Assets:** Everything in the **[`/docs`](./docs/)** directory is excluded from the MIT License. All rights reserved: do not copy, redistribute, modify, or use these files (including for AI training) without written permission. See the **[Icon License](./docs/LICENSE-ART.md)**. Forks are welcome, but the icons stay under their own terms.
+
 
 ---
 
