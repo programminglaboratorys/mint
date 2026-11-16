@@ -32,6 +32,7 @@ namespace mint {
 
         template <typename T, class... Args>
         T* mint(Args&& ...args) {
+            // WARNING: it bumps even when the object constructor fails, not an issue rn cuz non-trivially destructible object are not supported!
             // bleh check if an object is destructible with std::is_trivially_destructible_v<T>
             // and handle that properly, later, now its just a simple arena
             static_assert(std::is_trivially_destructible_v<T>, "non-trivially destructible object are not supported!");
@@ -73,6 +74,7 @@ namespace mint {
 
             // bump the offset of the arena
             offset = static_cast<char*>(aligned_ptr)-buffer + total_size;
+
             return static_cast<T*>(aligned_ptr);
         }
 
@@ -111,7 +113,26 @@ namespace mint {
 
         template <typename T, class... Args>
         T* try_mint(Args&& ...args) {
-            return 0;
+            // WARNING: it bumps even when the object constructor fails, not an issue rn cuz non-trivially destructible object are not supported!
+            // bleh check if an object is destructible with std::is_trivially_destructible_v<T>
+            // and handle that properly, later, now its just a simple arena
+            static_assert(std::is_trivially_destructible_v<T>, "non-trivially destructible object are not supported!");
+            constexpr size_t alignment = alignof(T);
+            constexpr size_t size = sizeof(T);
+
+            char* current_ptr = buffer + offset;
+            std::size_t space = capacity - offset;
+            void* aligned_ptr = current_ptr;
+
+            // align the ptr to the specified alignment
+            if (std::align(alignment, size, aligned_ptr, space) == nullptr) {
+                return nullptr;
+            }
+
+            // bump the offset of the arena
+            offset = static_cast<char*>(aligned_ptr) - buffer + size;
+
+            return new (aligned_ptr) T(std::forward<Args>(args)...);
         }
 
         template <typename T>
