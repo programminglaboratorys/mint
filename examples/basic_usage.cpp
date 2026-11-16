@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+// for the arena
+#include <memory> // for memcpy
+#include <cstring> // for std::align
+
 namespace mint {
     class arena {
     public:
