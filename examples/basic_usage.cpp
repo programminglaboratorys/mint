@@ -10,9 +10,9 @@ namespace mint {
     class arena {
     public:
         // members
+        size_t capacity = 0;
         char* buffer = nullptr;
         size_t offset = 0;
-        size_t capacity = 0;
 
         explicit arena(size_t capacity) : capacity(capacity), buffer(new char[capacity]) {}
         arena(char* buffer, size_t capacity) : capacity(capacity), buffer(buffer) {} // hey most likely would have to copy this whole buffer to a new one
